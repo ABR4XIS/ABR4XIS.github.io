@@ -33,6 +33,12 @@
 <td>별도 인증 서버와의 라이선스 확인 HTTP 요청 분석</td>
 </tr>
 </tbody></table>
+<h2>AI 사용과 직접 검증한 범위</h2>
+<table><thead><tr><th>구분</th><th>맡긴 일과 판단 기준</th></tr></thead><tbody>
+<tr><td>AI · Ghidra MCP</td><td>코드 구조를 빠르게 파악하고 심볼·호출 관계에서 분석 후보를 추리는 보조 도구로 사용</td></tr>
+<tr><td>직접 수행</td><td>Spy++·WinDbg32로 핸들러를 추적하고, Charles Proxy로 HTTP 흐름을 확인해 서버 환경 구성. 리치 링크 PoC 제작·제보서 작성·패치 비교 수행</td></tr>
+<tr><td>검증 기준</td><td>AI의 설명만으로 결론 내리지 않고 디버거의 실행 흐름, 실제 PoC 동작, HTTP 요청·응답, 버전별 바이너리 차이로 확인</td></tr>
+</tbody></table>
 <details>
 <summary>서버 라이선스 구조 분석</summary>
 
