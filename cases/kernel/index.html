@@ -1,0 +1,43 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#ffffff"><meta name="description" content="Fedora Asahi에서 Linux 기반 Android 커널을 빌드하고 QEMU·initramfs·BusyBox로 부팅 환경을 구성했습니다. ARM64 CPU 구조와 AArch64 레지스터를 학습한 원본 노트를 함께 정리했습니다."><title>Linux 커널 빌드와 ARM64 학습 — 이형민</title><link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="../../style.css"></head><body><a class="skip" href="#analysis">본문으로 이동</a><header class="header"><a class="identity" href="../../"><strong>이형민</strong><span>somonox</span></a><nav aria-label="메인 메뉴"><a href="../../#work">분석 기록</a><a href="../../#learning">학습</a><a href="../../#about">소개</a><a href="mailto:hungmin090929@gmail.com">이메일 ↗</a></nav></header><main><header class="article-head wrap"><a class="back-link" href="../../#work">← 전체 기록</a><p class="kicker">시스템 환경 구성과 학습</p><h1>Linux 커널 빌드와 ARM64 학습</h1><p class="article-deck">Fedora Asahi에서 Linux 기반 Android 커널을 빌드하고 QEMU·initramfs·BusyBox로 부팅 환경을 구성했습니다. ARM64 CPU 구조와 AArch64 레지스터를 학습한 원본 노트를 함께 정리했습니다.</p><div class="article-facts"><strong>ARM64 · QEMU · Linux</strong><strong>CPU 구조 · AArch64 레지스터</strong><strong>2026.09 기록</strong></div></header><div class="article-layout wrap"><aside class="article-toc" aria-label="분석 목차"><span>CONTENTS</span><ol></ol></aside><article class="article-content" id="analysis"><div class="scope-note"><strong>현재 단계</strong> 환경 구성과 운영체제 개념 학습 기록입니다. 새로운 커널 취약점 발견이나 권한 상승 성공 사례로 제시하지 않습니다.</div><h2>Linux 커널을 빌드할 환경부터 구성하기</h2>
+<p>Android의 기반인 Linux 커널을 ARM64 환경에서 빌드하고 부팅해 보기 위해 Fedora Asahi 워크스테이션을 구성했습니다. SSH로 접속하고 LLVM·Clang 도구 체인을 사용했습니다.</p>
+<p>학교 네트워크에서 발생한 연결 문제는 포털에 MAC 주소를 등록하고 IP를 고정해 해결했습니다. 빌드 중에는 인증서 digest 관련 오류가 발생해 SHA-1 설정을 SHA-512로 변경한 과정을 기록했습니다.</p>
+<p><a href="https://www.notion.so/3d6d1b2618d0807db1ecc8922662a3da">원본: 워크스테이션과 커널 빌드 환경 구성</a></p>
+<h2>QEMU 부팅과 기본 사용자 공간</h2>
+<p>QEMU의 ARM64 virt 머신과 KVM을 사용했습니다. 커널에 필요한 옵션을 활성화하고, Fedora aarch64용 BusyBox와 cpio.gz 형식의 initramfs로 기본 사용자 공간을 구성했습니다.</p>
+<table>
+<thead>
+<tr>
+<th>설정</th>
+<th>기록한 용도</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CONFIG_BLK_DEV_INITRD</td>
+<td>initramfs 사용</td>
+</tr>
+<tr>
+<td>CONFIG_BINFMT_ELF / CONFIG_BINFMT_SCRIPT</td>
+<td>ELF와 스크립트 실행</td>
+</tr>
+<tr>
+<td>CONFIG_SERIAL_AMBA_PL011 / CONFIG_SERIAL_AMBA_PL011_CONSOLE</td>
+<td>ARM 시리얼 장치와 콘솔 출력</td>
+</tr>
+<tr>
+<td>CONFIG_DEVTMPFS / CONFIG_DEVTMPFS_MOUNT</td>
+<td>장치 파일 관리와 자동 마운트</td>
+</tr>
+</tbody></table>
+<p>원본 노트에는 환경을 선택한 이유와 빌드 설정, 부팅에 사용한 구성을 정리했습니다.</p>
+<h2>ARM64 CPU 구조 학습</h2>
+<p>커널 코드를 읽기 위한 배경 지식으로 아키텍처와 마이크로아키텍처의 차이를 정리했습니다. 명령어·레지스터·예외·메모리 모델이 아키텍처에서 무엇을 규정하는지 살펴보고, GIC·SMMU·Generic Timer 등 구성 요소를 구분했습니다.</p>
+<p><a href="https://www.notion.so/3d7d1b2618d0804e8271cbf57fe17a18">원본: Phase 0 — CPU 구조</a></p>
+<h2>AArch64 레지스터와 호출 규약</h2>
+<p>X0–X30과 W0–W30의 관계, W 레지스터에 쓸 때 상위 32비트가 0이 되는 동작을 정리했습니다. 함수 호출과 스택을 읽기 위해 X29(FP), X30(LR), SP의 역할과 16바이트 스택 정렬을 학습했습니다.</p>
+<p>PC와 PSTATE의 NZCV 조건 플래그, SIMD 레지스터와 시스템 레지스터의 접근 방식도 노트로 남겼습니다.</p>
+<p><a href="https://www.notion.so/3d7d1b2618d080c1a7f2cdbd7b9b1a47">원본: Phase 1 — AArch64 Programmer’s Model</a></p>
+<h2>이어서 공부할 범위</h2>
+<p>ARM64 학습 목차에는 어셈블리, ABI·ELF, 예외 수준, MMU·가상 메모리, 캐시와 메모리 모델, 인터럽트, Linux arch/arm64를 적었습니다. 이 항목들은 학습 계획이며 완료한 분석으로 제시하지 않습니다.</p>
+<p>부트스트랩 글은 목표만 적힌 상태여서 상세 분석에 포함하지 않았습니다. 현재 공개한 결과는 환경 구성과 CPU·레지스터 학습 기록입니다.</p>
+<p><a href="https://www.notion.so/3d6d1b2618d0800ea29af3ecd54a5a8e">원본: ARM64 학습 목차</a></p>
+<p class="article-source">원본 기록: <a href="https://www.notion.so/3d6d1b2618d0804b973cea9145cde1ee" target="_blank" rel="noopener noreferrer">Notion ↗</a></p><nav class="article-end" aria-label="기록 이동"><a href="../../#work">← 전체 기록</a><a href="../gentoo/">다음: CoolMessenger Gentoo →</a></nav></article></div></main><footer class="footer wrap"><a class="footer-email" href="mailto:hungmin090929@gmail.com">hungmin090929@gmail.com ↗</a><div><span>© 2026 이형민</span><a href="#">맨 위로 ↑</a></div></footer><script src="../../article.js" defer></script></body></html>

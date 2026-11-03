@@ -1,0 +1,159 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#ffffff"><meta name="description" content="서버 구동 환경을 마련한 뒤 CEF에서 Windows Shell까지 링크 처리 경로를 추적했습니다. 취약점 제보 이후에는 패치 버전의 방어 로직을 정적으로 비교했습니다."><title>CoolMessenger Gentoo — 이형민</title><link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="../../style.css"></head><body><a class="skip" href="#analysis">본문으로 이동</a><header class="header"><a class="identity" href="../../"><strong>이형민</strong><span>somonox</span></a><nav aria-label="메인 메뉴"><a href="../../#work">분석 기록</a><a href="../../#learning">학습</a><a href="../../#about">소개</a><a href="mailto:hungmin090929@gmail.com">이메일 ↗</a></nav></header><main><header class="article-head wrap"><a class="back-link" href="../../#work">← 전체 기록</a><p class="kicker">실제 제품 취약점 분석</p><h1>CoolMessenger Gentoo</h1><p class="article-deck">서버 구동 환경을 마련한 뒤 CEF에서 Windows Shell까지 링크 처리 경로를 추적했습니다. 취약점 제보 이후에는 패치 버전의 방어 로직을 정적으로 비교했습니다.</p><div class="article-facts"><strong>KVE-2026-1543</strong><strong>High · 포상 70만 원</strong><strong>제보 2026.07.01</strong></div></header><div class="article-layout wrap"><aside class="article-toc" aria-label="분석 목차"><span>CONTENTS</span><ol></ol></aside><article class="article-content" id="analysis"><div class="scope-note"><strong>확인 범위</strong> 취약 버전의 로컬 PoC 실행을 검증했습니다. 5.75.80.2의 패치는 정적으로 비교했으며, 패치 버전의 동적 회귀 테스트는 수행하지 않았습니다.</div><h2>분석 환경 구성</h2>
+<p>클라이언트를 분석하려면 먼저 연결할 서버가 필요했습니다. 서버의 라이선스 확인은 별도 인증 서버를 이용하는 구조였기 때문에, 서버를 실행할 수 있는 환경을 마련하는 것부터 시작했습니다.</p>
+<p>AI와 Ghidra MCP를 함께 사용해 서버 코드 구조를 파악했습니다. Spy++로 UI 버튼과 메시지 핸들러를 추적하고, 해당 핸들러의 어셈블리 동작은 WinDbg32로 확인했습니다. Charles Proxy로는 별도 인증 서버와 주고받는 라이선스 확인 HTTP 요청을 분석했습니다.</p>
+<p>이 과정을 통해 서버의 라이선스 파싱 로직을 우회해 서버를 구동했고, 클라이언트를 연결해 취약점을 분석할 수 있는 환경을 마련했습니다.</p>
+<table>
+<thead>
+<tr>
+<th>도구</th>
+<th>사용 목적</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>AI와 Ghidra MCP</td>
+<td>서버와 클라이언트의 코드 구조 파악 및 함수 분석</td>
+</tr>
+<tr>
+<td>Spy++</td>
+<td>버튼과 메시지 핸들러를 찾아 역공학의 시작점 확보</td>
+</tr>
+<tr>
+<td>WinDbg32</td>
+<td>버튼 핸들러의 어셈블리 동작을 동적으로 확인</td>
+</tr>
+<tr>
+<td>Charles Proxy</td>
+<td>별도 인증 서버와의 라이선스 확인 HTTP 요청 분석</td>
+</tr>
+</tbody></table>
+<details>
+<summary>서버 라이선스 구조 분석</summary>
+
+
+<p>서버 5.10.11의 <code>CoolManager.exe</code>와 <code>CoolSerialChecker.dll</code>을 분석했습니다. 로컬 시리얼 검사와 온라인 인증이 분리되어 있었고, <b>로컬 검사에 성공해도 온라인 응답과 등록·만료 상태 검사가 별도로 남는 구조</b>였습니다.</p>
+<table>
+<thead>
+<tr>
+<th>분석 대상</th>
+<th>확인한 역할</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CoolSerialChecker.dll</td>
+<td>COM 인터페이스 <code>IChecker::IsValid</code>를 통한 시리얼과 사용자 수의 로컬 일관성 검사</td>
+</tr>
+<tr>
+<td>CoolManager.exe</td>
+<td>온라인 인증 요청, 응답 파싱, 기능·수량 적용 및 등록·만료 상태 저장</td>
+</tr>
+</tbody></table>
+<p>라이선스를 확인하는 함수 하나만 보는 대신, 온라인 응답이 어떤 상태로 저장되고 서버 시작 시 어떻게 사용되는지 연결해 살펴봤습니다.</p>
+<ul>
+<li><b>온라인 인증:</b> <code>sub_6CC770</code>에서 응답의 <code>RetVal</code>을 추출하고 구분자로 나눈 뒤, 상태 코드와 기능·수량 값을 해석하는 흐름을 확인했습니다.</li>
+<li><b>등록·만료 상태 저장:</b> <code>sub_6D3D00</code>에서 업그레이드 인증 응답을 읽어 레지스트리의 <code>Registered</code>와 <code>Expired</code>를 갱신하는 흐름을 확인했습니다.</li>
+<li><b>시작 시 상태 적용:</b> <code>sub_6C4960</code>에서 INI와 레지스트리에 저장된 시리얼, 사용자 수, 등록·만료 상태를 읽어 제한 여부를 결정하는 흐름을 확인했습니다.</li>
+</ul>
+<p>이 분석으로 로컬 시리얼 검사, 온라인 인증 응답 파싱, 저장된 상태의 적용을 구분했습니다. HTTP 요청은 <b>Charles Proxy</b>로 분석했고, 서버 구동을 막는 라이선스 처리 흐름을 추적해 클라이언트 분석 환경을 마련했습니다.</p>
+<p>서버 함수 주소는 5.10.11 기준입니다. 위 구조는 2026.11.02에 정리한 정적 분석 자료에 근거하며, 서버 구동과 클라이언트 PoC 검증 과정은 별도로 기술했습니다.</p>
+</details>
+
+
+<h2>클라이언트 분석 대상 선정</h2>
+<p>클라이언트에서도 AI와 Ghidra MCP를 함께 사용해 코드 구조를 파악했습니다. 심볼 이름을 단서로 취약점이 있을 법한 함수를 추린 뒤, 후보 함수의 구현과 호출 흐름을 분석했습니다. 이 과정에서 메시지 본문의 하이퍼링크가 네이티브 코드로 전달되는 경로를 확인했습니다.</p>
+<h2>링크 처리 동작 확인</h2>
+<p>메시지 본문의 링크가 어떤 과정을 거쳐 외부 리소스를 여는지 살펴봤습니다. 일반 텍스트로 넣은 HTML 태그는 이스케이프됐지만, 리치 텍스트에서 복사한 하이퍼링크는 href가 보존된 채 수신 화면에 나타났습니다.</p>
+<h2>원인과 처리 흐름</h2>
+<p>CEF 뷰의 window.cefInstance.fireLink(href)가 받은 값을 네이티브 코드까지 따라갔습니다. <code>file://</code> 처리에서는 URL 디코드와 slash 정규화만 했고, URL scheme이나 경로를 제한하는 검증 없이 ShellExecuteExW의 lpFile로 전달했습니다.</p>
+<pre><code class="language-txt">anchor click → window.cefInstance.fireLink(href)
+→ sub_4659E0 → PostMessageW(..., 0x56DB, ...)
+→ sub_541A40 → sub_667130 → ShellExecuteExW(open)
+</code></pre>
+<p>신고 자료에 정리한 정적 분석 경로</p>
+<h2>재현과 결과</h2>
+<table>
+<thead>
+<tr>
+<th>시험</th>
+<th>관찰한 동작</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>일반 텍스트 HTML 입력</td>
+<td>태그가 이스케이프돼 표시됨</td>
+</tr>
+<tr>
+<td>리치 하이퍼링크 전송</td>
+<td>href가 보존돼 수신 화면에서 클릭 가능</td>
+</tr>
+<tr>
+<td>로컬 PoC 링크 클릭</td>
+<td>로컬 테스트 실행 파일 calc.exe 실행 확인</td>
+</tr>
+</tbody></table>
+<p>수신자의 클릭이 필요합니다. UNC/WebDAV 원격 경로에서는 Windows 경고나 실행 확인 UI가 나타날 수 있었습니다. NTLM 노출과 외부 프로토콜을 통한 추가 실행은 환경에 따른 가능성이므로, 직접 확인한 로컬 PoC 결과와 구분했습니다.</p>
+<h2>제보와 조치</h2>
+<p>네이티브 핸들러의 URL scheme allowlist와 링크 생성·저장·렌더링 구간의 일관된 검증을 제안했습니다. KISA 제보 후 패치가 이뤄졌으며, 처리 내역에는 High·포상금 70만 원·종료 상태가 표시돼 있습니다.</p>
+<p><img src="../../assets/kve.png" alt="분석 원본 자료"></p>
+<p>KISA 신고포상제 처리 내역 원본 화면</p>
+<h2>패치 전후 정적 비교</h2>
+<p>2026.11.02에 클라이언트 <b>5.75.80.1과 5.75.80.2</b>의 설치 파일 및 추출 실행 파일을 정적으로 비교했습니다. 5.75.80.2에는 <code>KVE-2026-1543 link BLOCK</code>, <code>link WARN</code>, <code>namo href stripped</code> 문자열과 함께 링크 정규화·정책 검사 및 표시 단계 방어가 추가되어 있었습니다.</p>
+<p>기존 <code>fireLink</code> 호출과 범용 URL 열기 계층은 남아 있었습니다. 변경점은 <b>HTML 표시 단계에서 위험한 href를 제거하고, 실제 열기 큐에 넣기 전에 링크를 다시 검사하는 것</b>이었습니다.</p>
+<table>
+<thead>
+<tr>
+<th>비교 항목</th>
+<th>5.75.80.1</th>
+<th>5.75.80.2</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>링크 열기 전 검사</td>
+<td>신고 경로에 스킴·경로 제한 누락</td>
+<td>정규화 후 허용·경고·차단 정책 적용</td>
+</tr>
+<tr>
+<td>일반 웹·메일 스킴</td>
+<td>범용 열기 경로로 전달</td>
+<td>http·https·mailto 무경고 허용</td>
+</tr>
+<tr>
+<td>file 링크와 로컬·UNC 경로</td>
+<td>검증 없이 열기 경로로 전달</td>
+<td>파일 경로로 분류한 뒤 위험 확장자 차단, 그 외 사용자 확인</td>
+</tr>
+<tr>
+<td>명시적 사용자 정의 스킴</td>
+<td>범용 열기 경로로 전달</td>
+<td>허용 목록 밖 스킴 차단</td>
+</tr>
+<tr>
+<td>HTML 표시 단계</td>
+<td>신고한 리치 하이퍼링크의 href 보존</td>
+<td>위험 href 제거 함수 추가</td>
+</tr>
+</tbody></table>
+<h3>실제 열기 전 검사 위치</h3>
+<p>5.75.80.2의 <code>sub_5AB910</code>은 <code>EzUtil::ConfirmLinkOpen</code>에 해당하는 <code>sub_66E390</code>을 호출하고, 허용되거나 사용자가 확인한 링크만 실제 열기 목록에 넣었습니다.</p>
+<pre><code class="language-txt">링크 목록 처리 sub_5AB910
+  → ConfirmLinkOpen sub_66E390
+      → URL 정규화 sub_66DB60
+      → 스킴 추출 sub_66DFC0
+      → 정책 분류 sub_66E180
+  → 허용·확인된 링크만 열기 큐에 삽입
+  → 작업 스레드 sub_5AC690
+  → 기존 URL 열기 계층 sub_670B20
+</code></pre>
+<p>정규화 함수에는 URL 디코딩 최대 5회 반복, 공백·제어문자 및 일부 보이지 않는 문자 제거가 추가되었습니다. HTML/Namo 표시 단계의 <code>EzUtil::StripUnsafeHrefsForDisplay</code>는 href를 정규화·분류해 위험한 링크를 제거했습니다.</p>
+<h3>판정과 확인 범위</h3>
+<p><b>정적 비교상 신고 경로를 대상으로 한 방어가 실제 열기 전에 적용되는 것을 확인했습니다.</b> 위험 확장자의 차단, 그 외 파일 링크의 사용자 확인, 표시 단계의 href 제거가 함께 추가되었습니다.</p>
+<p>패치 버전에서 취약 링크를 클릭하는 동적 회귀 테스트는 수행하지 않았습니다. 따라서 모든 URL 표현에 대한 우회 불가능성까지 검증한 것으로 쓰지는 않았습니다.</p>
+<details>
+<summary>비교한 CoolMessenger.exe SHA-256</summary>
+
+
+<ul>
+<li>5.75.80.1: <code>57922FC8BB0F89A199F977B76CDCF6A8D90A96B63B27C2F2A53450C4E87D7CE9</code></li>
+<li>5.75.80.2: <code>D27594F7AD1CCA0A46BE9DE4311D238CEF4E67057E3C3E6B1C660C9A0656E544</code></li>
+</ul>
+</details>
+<p class="article-source">원본 기록: <a href="https://app.notion.com/p/40bd1b2618d081008484e832708a6d0d?pvs=204" target="_blank" rel="noopener noreferrer">Notion ↗</a></p><nav class="article-end" aria-label="기록 이동"><a href="../../#work">← 전체 기록</a><a href="../pwnsec/">다음: PwnSec 문제 풀이와 재분석 →</a></nav></article></div></main><footer class="footer wrap"><a class="footer-email" href="mailto:hungmin090929@gmail.com">hungmin090929@gmail.com ↗</a><div><span>© 2026 이형민</span><a href="#">맨 위로 ↑</a></div></footer><script src="../../article.js" defer></script></body></html>

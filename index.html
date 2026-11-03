@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#ffffff"><meta name="description" content="이형민(somonox)의 Windows 클라이언트 취약점 분석, pwnable 풀이와 Linux 커널 학습 기록."><title>이형민 / somonox — 분석 기록</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="style.css"></head>
+<body class="archive"><a class="skip" href="#work">본문으로 이동</a>
+<div class="archive-shell">
+<aside class="profile" aria-label="프로필"><a class="profile-name" href="./">이형민<span>somonox</span></a>
+<p class="profile-line">Windows 클라이언트 취약점과<br> Linux 바이너리를 분석합니다.</p>
+<nav class="profile-nav" aria-label="메인 메뉴"><a href="#work">01 <span>분석 기록</span></a><a href="#learning">02 <span>학습 노트</span></a><a href="#about">03 <span>소개</span></a></nav>
+<div class="profile-links"><a href="https://github.com/ABR4XIS" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a href="mailto:hungmin090929@gmail.com">이메일 ↗</a></div><p class="profile-caption">SECURITY / SYSTEMS<br>개인 분석·학습 아카이브</p></aside>
+<main class="archive-main">
+<section id="work" aria-labelledby="work-title"><header class="index-head"><h1 id="work-title">분석 기록</h1><span>2026 / 3 RECORDS</span></header>
+<article class="record"><div class="record-meta"><span>01 / Windows · 취약점 제보</span><time>2026.07–11</time></div><h2><a href="cases/gentoo/">CoolMessenger Gentoo <span>↗</span></a></h2><p>메시지의 링크가 CEF 브리지를 거쳐 Windows Shell로 전달되는 경로를 추적했습니다. 링크 검증 누락을 제보하고, 조치된 버전의 코드를 정적으로 비교했습니다.</p><div class="record-facts"><strong>KVE-2026-1543</strong><strong>High</strong><span>패치 완료 · 포상 <b>70만 원</b></span></div><a class="record-detail" href="cases/gentoo/">서버 환경 구성 → 링크 처리 분석 → PoC → 패치 비교 <span>읽기 ↗</span></a></article>
+<article class="record"><div class="record-meta"><span>02 / PwnSec · pwnable</span><time>2026.09</time></div><h2><a href="cases/pwnsec/">Freal World Manipulation <span>↗</span></a></h2><p>음수 인덱스와 이중 역참조를 따라 메모리 읽기·쓰기를 구성했습니다. 대회 중에는 ROP로 해결했고, 대회가 끝난 뒤 House of Apple 2 FSOP로 다시 풀었습니다.</p><div class="record-facts"><strong>대회 중 1문제 해결</strong><span>ROP · FSOP</span></div><a class="record-detail" href="cases/pwnsec/">막힌 지점과 당시 풀이 코드 <span>읽기 ↗</span></a></article>
+<article class="record"><div class="record-meta"><span>03 / 팀 프로젝트 · 인증 보안</span><time>2026.10</time></div><h2><a href="cases/maru/">마루 — 인증 흐름 수정 <span>↗</span></a></h2><p>인증번호 만료와 요청 제한, JWT 유형 검증, Redis 세션 폐기를 구현했습니다. 수정한 동작과 테스트 코드를 PR에 남겼습니다.</p><div class="record-facts"><strong>PR 4건 병합</strong><span>Java · Spring · Redis</span></div><a class="record-detail" href="cases/maru/">구현 내용과 병합 기록 <span>읽기 ↗</span></a></article></section>
+<section class="archive-section" id="learning" aria-labelledby="learning-title"><header class="index-head"><h2 id="learning-title">학습 노트</h2><span>3 NOTES</span></header>
+<a class="study-row" href="cases/passcode/"><div class="study-label">PWNABLE.KR <span>2026.02</span></div><h3>passcode <span>↗</span></h3><p>100바이트 입력 제한과 GOT overwrite. 스택을 그려 쓰기 주소를 정리한 기록.</p></a>
+<a class="study-row" href="cases/input-rop/"><div class="study-label">PWNABLE.KR <span>2026.02</span></div><h3>input2 · horcruxes <span>↗</span></h3><p>다섯 입력 경로 제어, 함수 호출 ROP와 signed 32비트 정수 변환.</p></a>
+<a class="study-row" href="cases/kernel/"><div class="study-label">LINUX / ARM64 <span>2026.09</span></div><h3>Linux 커널 빌드와 ARM64 학습 <span>↗</span></h3><p>Fedora Asahi·QEMU 부팅 환경과 CPU 구조, AArch64 레지스터 학습. Notion 원본 노트 4편을 연결했습니다.</p></a></section>
+<section class="archive-section" id="about" aria-labelledby="about-title"><header class="index-head"><h2 id="about-title">소개</h2><span>ABOUT</span></header>
+<div class="bio"><p>프로그램 안에서 입력이 어떻게 처리되는지 궁금해서 바이너리를 분석합니다. 주로 Windows 클라이언트를 역공학하고, Linux pwnable 문제를 풉니다.</p>
+<p>CoolMessenger Gentoo를 분석할 때는 클라이언트를 실행할 서버부터 필요했습니다. 서버의 라이선스 처리 흐름을 분석해 테스트 환경을 마련한 뒤, 클라이언트의 링크 처리 취약점을 찾아 제보했습니다.</p>
+<p>분석에는 AI와 Ghidra MCP를 함께 사용합니다. 코드 구조와 분석 대상을 파악하는 데 도움을 받고, 실행 흐름과 PoC 결과는 디버거와 실제 동작으로 확인합니다. 지금은 ARM64와 Linux 커널을 공부하며 분석 범위를 넓히고 있습니다.</p></div>
+<div class="credentials"><h3>자격 · 교육</h3><dl><div><dt>정보처리산업기사 합격</dt><dd>총점 <strong>95.5점</strong> · 실무 <strong>100점</strong></dd></div><div><dt>TOEIC</dt><dd><strong>875점</strong></dd></div><div><dt>NVIDIA DLI</dt><dd>Getting Started with Deep Learning<br><a href="https://learn.nvidia.com/certificates?id=10efEXG9SeWmL0ZtdMJgEg" target="_blank" rel="noopener noreferrer">2026.05.14 수료 ↗</a></dd></div><div><dt>학력</dt><dd>부산소프트웨어마이스터고등학교<br>소프트웨어개발과 재학</dd></div></dl><details class="certificate"><summary>정보처리산업기사 평가 결과</summary><img src="assets/certificate.png" alt="정보처리산업기사 합격 — 총점 95.5점, 실무평가 100점" loading="lazy"></details></div>
+<div class="participation"><h3>대회 참가</h3><p>HackQuest 본선 · 사이버 가디언즈 CMX 본선</p></div>
+</section><footer class="archive-footer"><a href="mailto:hungmin090929@gmail.com">hungmin090929@gmail.com ↗</a><span>이형민 / somonox</span></footer>
+</main></div><script src="app.js" defer></script></body></html>
