@@ -36,7 +36,14 @@
 <p>X0–X30과 W0–W30의 관계, W 레지스터에 쓸 때 상위 32비트가 0이 되는 동작을 정리했습니다. 함수 호출과 스택을 읽기 위해 X29(FP), X30(LR), SP의 역할과 16바이트 스택 정렬을 학습했습니다.</p>
 <p>PC와 PSTATE의 NZCV 조건 플래그, SIMD 레지스터와 시스템 레지스터의 접근 방식도 노트로 남겼습니다.</p>
 <p>원본: Phase 1 — AArch64 Programmer’s Model</p>
-<h2>이어서 공부할 범위</h2>
+<h2>현재 남아 있는 산출물</h2>
+<ul class="deliverables">
+<li><b>환경 구성 기록</b> — Fedora Asahi, SSH, LLVM·Clang을 선택하고 연결 문제를 해결한 과정</li>
+<li><b>커널 설정 근거</b> — initramfs, ELF·스크립트 실행, PL011 콘솔, devtmpfs에 필요한 config와 이유</li>
+<li><b>부팅 사용자 공간 구성</b> — QEMU virt, KVM, aarch64 BusyBox, cpio.gz initramfs 조합</li>
+<li><b>오류 해결 기록</b> — 인증서 digest 오류를 확인하고 SHA-1 설정을 SHA-512로 바꾼 과정</li>
+<li><b>ARM64 학습 노트</b> — CPU 구조, X/W 레지스터, FP·LR·SP, 스택 정렬과 조건 플래그</li>
+</ul><h2>이어서 공부할 범위</h2>
 <p>ARM64 학습 목차에는 어셈블리, ABI·ELF, 예외 수준, MMU·가상 메모리, 캐시와 메모리 모델, 인터럽트, Linux arch/arm64를 적었습니다. 이 항목들은 학습 계획이며 완료한 분석으로 제시하지 않습니다.</p>
 <p>부트스트랩 글은 목표만 적힌 상태여서 상세 분석에 포함하지 않았습니다. 현재 공개한 결과는 환경 구성과 CPU·레지스터 학습 기록입니다.</p>
 <p>원본: ARM64 학습 목차</p>
