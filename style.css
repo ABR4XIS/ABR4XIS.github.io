@@ -93,7 +93,7 @@ details[open]>summary>.disclosure-icon{transform:rotate(180deg)}
 .research-answer,.detail-content,.code-intro>*{min-width:0}.research-answer .full-exploit{width:100%;max-width:100%;overflow-x:auto;white-space:pre;tab-size:4}.full-exploit code{display:block;overflow-wrap:normal;word-break:normal}
 
 /* The first case leads with the finding, then gives one clear reason to open it. */
-.featured-case{border-top:3px solid var(--ink);padding-top:22px}
+.featured-case{border-top:1px solid var(--ink);padding-top:22px}
 .featured-case .case-heading aside>strong{color:#b21f2d}
 .featured-case .case-lead{font-weight:560}
 .case-preview{margin:0 0 9px 16.9%;font-size:11px;line-height:1.6;color:var(--muted);letter-spacing:-.01em}
@@ -115,7 +115,7 @@ details[open]>summary>.disclosure-icon{transform:rotate(180deg)}
 .featured-case .case-subtitle{margin-bottom:15px}
 .featured-case .case-heading h3{font-size:clamp(44px,4.7vw,68px);line-height:1.12;margin-bottom:30px;letter-spacing:-.06em}
 .featured-case .case-lead{font-size:21px;line-height:1.6}
-.featured-case .case-heading aside{border-top-width:2px}
+.featured-case .case-heading aside{border-top-width:1px}
 .featured-case .case-heading aside>strong{font-size:56px;line-height:1;margin:32px 0 20px}
 .featured-case .case-heading aside>p{font-size:13px;line-height:1.75}
 .featured-case .case-meta{margin-top:44px}
