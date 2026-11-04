@@ -157,3 +157,9 @@ details[open]>summary>.disclosure-icon{transform:rotate(180deg)}
   .case-heading{grid-template-columns:115px minmax(0,1fr) 150px}
   .featured-case .case-heading{grid-template-columns:120px minmax(0,1fr) 170px}
 }
+
+/* Align the large project number with the title, not the category line. */
+@media(min-width:641px){
+  .case-index{margin-top:39px}
+  .featured-case .case-index{margin-top:51px}
+}
