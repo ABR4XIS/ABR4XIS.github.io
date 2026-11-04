@@ -1,0 +1,226 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="이형민의 pwnable.kr input2 분석과 풀이 기록"><title>input2 — 이형민</title><link rel="stylesheet" href="../../style.css"></head><body><a class="skip" href="#writeup-body">본문으로 이동</a><header class="top"><a href="../../#writeups">← 분석 기록</a><span>이형민 / PWNABLE.KR</span><a href="https://github.com/ABR4XIS/pwnable-kr-notes/blob/main/notes/input2.md" target="_blank" rel="noopener noreferrer">GitHub 원문 ↗</a></header><main class="writeup-page"><header class="writeup-head"><p class="eyebrow">pwnable.kr / 2026.02</p><h1>input2</h1><p>바이너리 분석과 문제 풀이 기록</p></header><article class="writeup-body" id="writeup-body"><blockquote>
+<p>엄마! 제 입력을 어떻게 컴퓨터에게 줄 수 있어요?</p>
+</blockquote>
+<h2>문제 개요</h2>
+<ul>
+<li>pwnable.kr - Toddler's Bottle</li>
+<li>10 point</li>
+<li>files: <code>flag</code>, <code>input2</code>, <code>input2.c</code></li>
+</ul>
+<h2>프로그램 분석</h2>
+<p>프로그램 인자, 표준 입출력, 환경변수, 파일, 네트워크를 이용하여 사용자의 입력을 받고 모두 검증 성공하면 flag를 내주는 방식입니다. 파이썬을 사용해서 차근 차근 만족시키면 되겠군요.</p>
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+#include &lt;sys/socket.h&gt;
+#include &lt;arpa/inet.h&gt;
+
+int main(int argc, char* argv[], char* envp[]){
+        printf(&quot;Welcome to pwnable.kr\n&quot;);
+        printf(&quot;Let's see if you know how to give input to program\n&quot;);
+        printf(&quot;Just give me correct inputs then you will get the flag :)\n&quot;);
+
+        // argv
+        if(argc != 100) return 0;
+        if(strcmp(argv['A'],&quot;\x00&quot;)) return 0;
+        if(strcmp(argv['B'],&quot;\x20\x0a\x0d&quot;)) return 0;
+        printf(&quot;Stage 1 clear!\n&quot;);
+
+        // stdio
+        char buf[4];
+        read(0, buf, 4);
+        if(memcmp(buf, &quot;\x00\x0a\x00\xff&quot;, 4)) return 0;
+        read(2, buf, 4);
+        if(memcmp(buf, &quot;\x00\x0a\x02\xff&quot;, 4)) return 0;
+        printf(&quot;Stage 2 clear!\n&quot;);
+
+        // env
+        if(strcmp(&quot;\xca\xfe\xba\xbe&quot;, getenv(&quot;\xde\xad\xbe\xef&quot;))) return 0;
+        printf(&quot;Stage 3 clear!\n&quot;);
+
+        // file
+        FILE* fp = fopen(&quot;\x0a&quot;, &quot;r&quot;);
+        if(!fp) return 0;
+        if( fread(buf, 4, 1, fp)!=1 ) return 0;
+        if( memcmp(buf, &quot;\x00\x00\x00\x00&quot;, 4) ) return 0;
+        fclose(fp);
+        printf(&quot;Stage 4 clear!\n&quot;);
+
+        // network
+        int sd, cd;
+        struct sockaddr_in saddr, caddr;
+        sd = socket(AF_INET, SOCK_STREAM, 0);
+        if(sd == -1){
+                printf(&quot;socket error, tell admin\n&quot;);
+                return 0;
+        }
+        saddr.sin_family = AF_INET;
+        saddr.sin_addr.s_addr = INADDR_ANY;
+        saddr.sin_port = htons( atoi(argv['C']) );
+        if(bind(sd, (struct sockaddr*)&amp;saddr, sizeof(saddr)) &lt; 0){
+                printf(&quot;bind error, use another port\n&quot;);
+                return 1;
+        }
+        listen(sd, 1);
+        int c = sizeof(struct sockaddr_in);
+        cd = accept(sd, (struct sockaddr *)&amp;caddr, (socklen_t*)&amp;c);
+        if(cd &lt; 0){
+                printf(&quot;accept error, tell admin\n&quot;);
+                return 0;
+        }
+        if( recv(cd, buf, 4, 0) != 4 ) return 0;
+        if(memcmp(buf, &quot;\xde\xad\xbe\xef&quot;, 4)) return 0;
+        printf(&quot;Stage 5 clear!\n&quot;);
+
+        // here's your flag
+        setregid(getegid(), getegid());
+        system(&quot;/bin/cat flag&quot;);
+        return 0;
+}
+</code></pre>
+<h2>설계 및 시나리오</h2>
+<h4>1. Program argument</h4>
+<p>우선 프로그램이 원격에 있으면 불편하므로 scp를 사용해 가져오겠습니다.</p>
+<pre><code>scp -P 2222 input2@pwnable.kr:/home/input2/input2 .
+</code></pre>
+<p>이런 종류의 문제를 푸는데 탁월한 파이썬 패키지인 <code>subprocess</code>를 이용하겠습니다. </p>
+<p>우선, 첫번째로 argument가 100개 여야합니다
+그리고 argc(argument count)는 자기 자신이 포함되므로, 99개의 인자가 들어가야겠죠. </p>
+<p>그리고 'A'번째의 argument는 <code>\x00</code>, 'B'번째의 argument는 <code>\x20\x0a\x0d</code>가 되어야합니다.</p>
+<pre><code>import subprocess
+
+args = ['./input2'] + [b'A'] * 99
+args[ord('A')] = b''
+args[ord('B')] = b'\x20\x0a\x0d'
+
+subprocess.call(args)
+</code></pre>
+<p>이렇게 실행한다면 1단계는 클리어 입니다!</p>
+<h4>2. Standard Input Output</h4>
+<p><code>"\x00\x0a\x00\xff"</code>와 <code>"\x00\x0a\x02\xff"</code>를 전달 해야합니다 하지만 subprocess 파이프를 사용한 stderr 쓰기는 제한되기 때문에 os를 사용하여 pipe를 연결하면됩니다.</p>
+<pre><code>from subprocess import *
+import os
+
+args = ['./input2'] + [b'A'] * 99
+args[ord('A')] = b''
+args[ord('B')] = b'\x20\x0a\x0d'
+
+r, w = os.pipe()
+
+p1 = Popen(args, stdin=PIPE, stderr=r)
+os.write(w, b&quot;\x00\x0a\x02\xff&quot;)
+p1.stdin.write(b&quot;\x00\x0a\x00\xff&quot;)
+p1.stdin.flush()
+
+os.close(r)
+os.close(w)
+</code></pre>
+<h4>3. ENV</h4>
+<p>0xdeadbeef를 키로, 0xcafebabe를 값으로 하여 env를 주입하면됩니다.</p>
+<pre><code>from subprocess import *
+import os
+
+args = ['./input2'] + [b'A'] * 99
+args[ord('A')] = b''
+args[ord('B')] = b'\x20\x0a\x0d'
+
+r, w = os.pipe()
+
+my_env = {}
+my_env[b&quot;\xde\xad\xbe\xef&quot;] = b&quot;\xca\xfe\xba\xbe&quot;
+
+p1 = Popen(args, stdin=PIPE, stderr=r, env=my_env)
+os.write(w, b&quot;\x00\x0a\x02\xff&quot;)
+p1.stdin.write(b&quot;\x00\x0a\x00\xff&quot;)
+p1.stdin.flush()
+
+os.close(r)
+os.close(w)
+
+</code></pre>
+<h4>4. File</h4>
+<p>홈화면에는 파일을 만들권한이 없으므로 /tmp를 사용해 만들어준 다음 조건을 만족하기 위해 null byte를 4개 넣어놓읍시다</p>
+<pre><code>from subprocess import *
+import os
+import time
+
+tmp_dir = &quot;/tmp/faah&quot;
+if not os.path.exists(tmp_dir):
+    os.makedirs(tmp_dir)
+
+os.chdir(tmp_dir)
+
+args = ['/home/input2/input2'] + [b'A'] * 99
+args[ord('A')] = b''
+args[ord('B')] = b'\x20\x0a\x0d'
+args[ord('C')] = &quot;6767&quot;
+
+file_name = &quot;\x0a&quot;
+
+with open(file_name, &quot;wb&quot;) as f:
+    f.write(b&quot;\x00\x00\x00\x00&quot;)
+
+r, w = os.pipe()
+my_env = os.environ.copy()
+my_env[b&quot;\xde\xad\xbe\xef&quot;] = b&quot;\xca\xfe\xba\xbe&quot;
+
+p1 = Popen(args, stdin=PIPE, stderr=r, env=my_env, stdout=PIPE)
+os.write(w, b&quot;\x00\x0a\x02\xff&quot;)
+p1.stdin.write(b&quot;\x00\x0a\x00\xff&quot;)
+p1.stdin.flush()
+
+os.close(r)
+os.close(w)
+</code></pre>
+<h4>5. Socket communication</h4>
+<p>마지막 단계입니다 'C'번째 arg에서 포트를 읽어오므로 아무도 쓰지 않을거 같은 포트를 넣은 다음 조건을 만족하기 위해 연결을 맺은 후, deadbeef를 전송합니다</p>
+<pre><code>from subprocess import *
+from socket import *
+import os
+import time
+
+host = &quot;0.0.0.0&quot;
+port = 6767
+
+tmp_dir = &quot;/tmp/faah&quot;
+if not os.path.exists(tmp_dir):
+    os.makedirs(tmp_dir)
+
+os.chdir(tmp_dir)
+
+args = ['/home/input2/input2'] + [b'A'] * 99
+args[ord('A')] = b''
+args[ord('B')] = b'\x20\x0a\x0d'
+args[ord('C')] = &quot;6767&quot;
+
+file_name = &quot;\x0a&quot;
+
+with open(file_name, &quot;wb&quot;) as f:
+    f.write(b&quot;\x00\x00\x00\x00&quot;)
+
+r, w = os.pipe()
+my_env = os.environ.copy()
+my_env[b&quot;\xde\xad\xbe\xef&quot;] = b&quot;\xca\xfe\xba\xbe&quot;
+
+p1 = Popen(args, stdin=PIPE, stderr=r, env=my_env, stdout=PIPE)
+os.write(w, b&quot;\x00\x0a\x02\xff&quot;)
+p1.stdin.write(b&quot;\x00\x0a\x00\xff&quot;)
+p1.stdin.flush()
+
+os.close(r)
+os.close(w)
+
+time.sleep(0.5)
+
+clientSocket = socket(AF_INET, SOCK_STREAM)
+clientSocket.connect((host ,port))
+clientSocket.send(b&quot;\xde\xad\xbe\xef&quot;)
+
+out, err = p1.communicate()
+
+print(out.decode())
+</code></pre>
+<h2>익스플로잇</h2>
+<pre><code>input2@ubuntu:/tmp/faah$ vim exploit.py
+input2@ubuntu:/tmp/faah$ python3 exploit.py
+</code></pre></article><nav class="writeup-end"><a href="../../#writeups">← 전체 분석 기록</a><a href="#writeup-body">본문 위로 ↑</a></nav></main></body></html>
