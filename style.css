@@ -350,3 +350,23 @@ summary>.disclosure-icon{justify-self:end;text-align:right}
 /* v49 — give the credentials section a clear section-level heading. */
 .credentials>h2{font-size:22px;line-height:1.2;font-weight:700;letter-spacing:-.035em}
 @media(max-width:640px){.credentials>h2{font-size:20px}}
+
+
+/* v50 — the comparison panel is the reference; the code panel follows it. */
+@media(min-width:1001px){
+  .before-after-wrap{display:block;margin:0}
+  .before-after-wrap .before-after{margin-left:198px;margin-right:268px}
+  .code-intro{display:block;margin-left:198px;margin-right:268px}
+  .code-intro>p{margin:0 0 18px}
+  .code-caption{margin-left:198px;margin-right:268px}
+}
+@media(min-width:641px) and (max-width:1000px){
+  .before-after-wrap{margin-left:0}
+  .before-after-wrap .before-after{margin-left:148px;margin-right:198px}
+  .code-intro{display:block;margin-left:148px;margin-right:198px}
+  .code-intro>p{margin:0 0 16px}
+  .code-caption{margin-left:148px;margin-right:198px}
+}
+@media(max-width:640px){
+  .before-after-wrap .before-after,.code-intro,.code-caption{margin-left:0;margin-right:0}
+}
