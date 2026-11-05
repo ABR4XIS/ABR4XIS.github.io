@@ -217,3 +217,14 @@ summary>.disclosure-icon{justify-self:end;text-align:right}
   .featured-case .case-lead{font-size:15px}
   .featured-case .case-heading aside>strong{font-size:26px;margin:18px 0 12px}
 }
+
+/* v31 — align project metadata with the main story column. */
+@media(min-width:1001px){
+  .case-meta{margin-left:198px;margin-right:268px}
+}
+@media(min-width:641px) and (max-width:1000px){
+  .case-meta{margin-left:148px;margin-right:198px}
+}
+@media(max-width:640px){
+  .case-meta{margin-left:0;margin-right:0}
+}
