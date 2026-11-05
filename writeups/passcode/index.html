@@ -1,5 +1,5 @@
 <!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="이형민의 pwnable.kr passcode 분석과 풀이 기록"><title>passcode — 이형민</title><link rel="stylesheet" href="../../style.css"></head><body><a class="skip" href="#writeup-body">본문으로 이동</a><header class="top"><a href="../../#writeups">← 분석 기록</a><span>이형민 / PWNABLE.KR</span><a href="https://github.com/ABR4XIS/pwnable-kr-notes/blob/main/notes/passcode.md" target="_blank" rel="noopener noreferrer">GitHub 원문 ↗</a></header><main class="writeup-page"><header class="writeup-head"><p class="eyebrow">pwnable.kr / 2026.02</p><h1>passcode</h1><p>바이너리 분석과 문제 풀이 기록</p></header><article class="writeup-body" id="writeup-body"><blockquote>
-<p>엄마가 비밀번호 기반 로그인 시스템을 만드라고 하셧어요! 심지어 C코드가 에러없이 한번에 컴파일되었어요!!
+<p>엄마가 비밀번호 기반 로그인 시스템을 만들라고 하셨어요! 심지어 C 코드가 오류 없이 한 번에 컴파일되었어요!!
 뭐, 컴파일러 경고가 잇엇지만 누가 신경이나 쓰겠어요?</p>
 </blockquote>
 <h2>문제 개요</h2>
@@ -86,20 +86,20 @@ int main(){
 }
 </code></pre>
 <h2>설계 및 시나리오</h2>
-<p>고민 해보던중 다음이 생각 났습니다.
-초기화 안된 스택 변수에는 이전 스택에서 쓰이던 쓰래기 값이 들어간다
+<p>고민해 보던 중 다음이 생각났습니다.
+초기화되지 않은 스택 변수에는 이전 스택에서 쓰이던 쓰레기 값이 들어간다
 -&gt; </p>
-<p>이전 스택에서 미리 다음에 선언된 변수의 값을 지정할 수있지 않을까??? 라는 생각이 들었습니다
+<p>이전 스택에서 미리 다음에 선언된 변수의 값을 지정할 수 있지 않을까? 라는 생각이 들었습니다
 </p>
-<figure class="stack-diagram"><a href="../../assets/passcode/stack-reuse.svg" target="_blank" rel="noopener noreferrer"><img src="../../assets/passcode/stack-reuse.svg" alt="welcome의 name 마지막 4바이트가 함수 반환 후에도 남아 login의 passcode1과 겹치는 과정"></a><figcaption>스택 입력의 재사용 / 그림을 누르면 크게 볼 수 있습니다.</figcaption></figure><p>이후 각각 오프셋을 계산해보았습니다</p>
+<figure class="stack-diagram"><a href="../../assets/passcode/stack-reuse.svg" target="_blank" rel="noopener noreferrer"><img src="../../assets/passcode/stack-reuse.svg" alt="welcome의 name 마지막 4바이트가 함수 반환 후에도 남아 login의 passcode1과 겹치는 과정"></a><figcaption>스택 입력의 재사용 / 그림을 누르면 크게 볼 수 있습니다.</figcaption></figure><p>이후 각각 오프셋을 계산해 보았습니다</p>
 <p><strong>버퍼 시작점 기준 오프셋</strong></p><ul><li>passcode1: 96바이트</li><li>passcode2: 100바이트</li></ul>
-<p>따라서 A*96개와 p32(13371337) + p32(123456)가 있으면 됩니다
-하지만 104개로 오버되므로 다른 방법을 강구애야합니다... </p>
-<p>그래서 passcode1만 사용하는 방법을 알아내었습니다.
+<p>따라서 A 96바이트와 p32(13371337) + p32(123456)가 있으면 됩니다
+하지만 104바이트가 필요해 입력 범위를 넘으므로 다른 방법을 찾아야 합니다. </p>
+<p>그래서 passcode1만 사용하는 방법을 알아냈습니다.
 바로 GOT overwrite입니다.
-ASLR과 PIE가 켜져있었다면 불가능했겠지만, PIE가 꺼져있으므로 GOT의 베이스 주소가 고정됩니다.
+ASLR과 PIE가 켜져 있었다면 불가능했겠지만, PIE가 꺼져 있으므로 GOT의 베이스 주소가 고정됩니다.
 따라서 gdb를 사용해 passcode1을 입력받은 다음에 가장 먼저 호출하는 libc 함수인 fflush를 overwrite하기로 하였습니다
-따라서 96개의 패딩과 4바이트의 fflush주소가 1차 페이로드, 권한 설정하는 코드의 주소가 2차 페이로드가 됩니다.</p>
+따라서 96개의 패딩과 4바이트의 fflush@GOT 주소가 1차 페이로드가 됩니다. 권한 설정 코드를 실행하는 주소가 2차 페이로드가 됩니다.</p>
 <h2>익스플로잇</h2>
 <pre><code>python3 -c &quot;import sys; sys.stdout.buffer.write(b'A'*96 + b'\x14\xc0\x04\x08' + b'\n' + b'134517401')&quot; | ./passcode
 </code></pre></article><nav class="writeup-end"><a href="../../#writeups">← 전체 분석 기록</a><a href="#writeup-body">본문 위로 ↑</a></nav></main></body></html>

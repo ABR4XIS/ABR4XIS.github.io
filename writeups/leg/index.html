@@ -1,5 +1,5 @@
 <!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="이형민의 pwnable.kr leg 분석과 풀이 기록"><title>leg — 이형민</title><link rel="stylesheet" href="../../style.css"></head><body><a class="skip" href="#writeup-body">본문으로 이동</a><header class="top"><a href="../../#writeups">← 분석 기록</a><span>이형민 / PWNABLE.KR</span><a href="https://github.com/ABR4XIS/pwnable-kr-notes/blob/main/notes/leg.md" target="_blank" rel="noopener noreferrer">GitHub 원문 ↗</a></header><main class="writeup-page"><header class="writeup-head"><p class="eyebrow">pwnable.kr / 2026.02</p><h1>leg</h1><p>바이너리 분석과 문제 풀이 기록</p></header><article class="writeup-body" id="writeup-body"><blockquote>
-<p>아빠가 ARM 아키텍쳐를 공부해야한다고 하셧어요. 하지만 전 인텔 아키텍쳐를 알고 둘은 비슷할거에요. 왜 귀찮게 ARM 아키텍쳐를 공부해요?</p>
+<p>아빠가 ARM 아키텍처를 공부해야 한다고 하셨어요. 하지만 전 인텔 아키텍처를 알고 둘은 비슷할 거예요. 왜 귀찮게 ARM 아키텍처를 공부해요?</p>
 </blockquote>
 <p>Download : http://pwnable.kr/bin/leg.c</p>
 <p>Download : http://pwnable.kr/bin/leg.asm</p>
@@ -138,10 +138,10 @@ End of assembler dump.
 add r11, sp, #0 
 </code></pre>
 <p>r11은 rbp정도로 생각하면됩니다 sp는 rsp입니다.
-<code>add    r11, sp, #0</code>은 조금 햇갈릴 수있지만 <code>mov rbp, rsp</code>와 동일합니다.
+<code>add    r11, sp, #0</code>은 조금 헷갈릴 수 있지만 <code>mov rbp, rsp</code>와 동일합니다.
 따라서 처음에 함수 스택 프레임을 설정하는 로직입니다.
-arm 아키텍쳐는 레지스터 0, 즉, r0을 반환값을 담는 레지스터로 사용합니다 rax와 같은 역할입니다!
-그리고 key 1, 2, 3번 함수 모두 최종적으로 r0에 유효한 값을 담고 있으므로 반환값을 쉽게 추적할 수있습니다.
+arm 아키텍처는 레지스터 0, 즉, r0을 반환값을 담는 레지스터로 사용합니다 rax와 같은 역할입니다!
+그리고 key 1, 2, 3번 함수 모두 최종적으로 r0에 유효한 값을 담고 있으므로 반환값을 쉽게 추적할 수 있습니다.
 pc는 program counter 로써 rip와 비슷한 동작을 수행하지만 프로그램 실행 인출-해독-실행 중에서 인출쪽을 가르키므로 코드 주소에서 +0x4(Thumb 모드) 혹은 +0x8(ARM 모드)한 만큼을 가집니다.</p>
 <h4>key1</h4>
 <pre><code>0x00008cdc &lt;+8&gt;:mov r3, pc
