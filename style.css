@@ -271,3 +271,7 @@ summary>.disclosure-icon{justify-self:end;text-align:right}
 @media(max-width:640px){
   .before-after{margin-left:0;margin-right:0}
 }
+
+/* v39 — give each write-up row more breathing room. */
+.note{padding:24px 0}
+@media(max-width:640px){.note{padding:20px 0}}
