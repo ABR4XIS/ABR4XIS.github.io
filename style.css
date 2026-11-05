@@ -415,6 +415,10 @@ body :is(
   .case-index,.case-heading h3,.case-heading aside>strong,
   .notes-intro h2,.writeup-head h1
 ){font-size:var(--type-display)!important}
+body :is(
+  .top .name,.intro-side .person-name,.intro h2,.section-head h1,
+  .project-main h3,.case-heading h3,.notes-intro h2,.writeup-head h1
+) *{font-size:var(--type-display)!important}
 @media(max-width:640px){
   :root{--type-small:11px;--type-body:15px;--type-display:30px}
 }
