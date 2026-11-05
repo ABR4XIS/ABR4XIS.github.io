@@ -298,3 +298,8 @@ summary>.disclosure-icon{justify-self:end;text-align:right}
 /* v42 — separate the write-up list from the preceding project rule. */
 .writeups{padding-top:56px}
 @media(max-width:640px){.writeups{padding-top:38px}}
+
+/* v43 — avoid drawing the first write-up rule over the project divider. */
+.notes-list{margin-top:18px}
+.notes-list .note:first-child{border-top:0}
+@media(max-width:640px){.notes-list{margin-top:10px}}
