@@ -315,3 +315,8 @@ summary>.disclosure-icon{justify-self:end;text-align:right}
   .intro-main{display:contents}
   .case-index>span{font-size:12px}
 }
+
+/* v46 — start the code panel where the metadata text above ends. */
+@media(min-width:1001px){
+  .code-intro{grid-template-columns:minmax(0,5fr) minmax(0,7fr)}
+}
