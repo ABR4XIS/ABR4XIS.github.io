@@ -390,3 +390,6 @@ summary>.disclosure-icon{justify-self:end;text-align:right}
 /* v54 — emphasize the two phrases that define the introduction. */
 .intro-accent{color:#b21f2d}
 .intro-underline{text-decoration-line:underline;text-decoration-thickness:.055em;text-underline-offset:.13em;text-decoration-color:currentColor}
+
+/* v57 — align the lead project number with the first title line. */
+@media(min-width:641px){.featured-case .case-index{margin-top:63px}}
