@@ -374,3 +374,14 @@ summary>.disclosure-icon{justify-self:end;text-align:right}
 
 /* v51 — match the portrait width to the visual width of the name. */
 @media(min-width:641px){.intro-photo{width:188px}}
+
+
+/* v52 — remove detail numbering and strengthen human-readable labels. */
+.case-index>span{font-size:18px;line-height:1.4}
+.school-name{font-size:15px;font-weight:500}
+.research-row h4{margin-top:0}
+@media(max-width:1000px){.school-name{font-size:13px}}
+@media(max-width:640px){
+  .case-index>span{font-size:14px}
+  .school-name{font-size:11px}
+}
