@@ -345,3 +345,8 @@ summary>.disclosure-icon{justify-self:end;text-align:right}
   .intro-side .intro-identity .school-name{margin-top:4px}
   .intro-side .intro-focus{display:none}
 }
+
+
+/* v49 — give the credentials section a clear section-level heading. */
+.credentials>h2{font-size:22px;line-height:1.2;font-weight:700;letter-spacing:-.035em}
+@media(max-width:640px){.credentials>h2{font-size:20px}}
