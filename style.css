@@ -370,3 +370,7 @@ summary>.disclosure-icon{justify-self:end;text-align:right}
 @media(max-width:640px){
   .before-after-wrap .before-after,.code-intro,.code-caption{margin-left:0;margin-right:0}
 }
+
+
+/* v51 — match the portrait width to the visual width of the name. */
+@media(min-width:641px){.intro-photo{width:188px}}
