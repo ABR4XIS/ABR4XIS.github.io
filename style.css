@@ -228,3 +228,9 @@ summary>.disclosure-icon{justify-self:end;text-align:right}
 @media(max-width:640px){
   .case-meta{margin-left:0;margin-right:0}
 }
+
+/* v32 — place the before/after arrow in the visual gap, not the box center. */
+@media(min-width:641px){
+  .before-after{grid-template-columns:minmax(0,.82fr) 48px minmax(0,1.18fr);gap:18px}
+  .before-after>span{justify-self:center}
+}
