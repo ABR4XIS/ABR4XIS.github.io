@@ -385,3 +385,8 @@ summary>.disclosure-icon{justify-self:end;text-align:right}
   .case-index>span{font-size:14px}
   .school-name{font-size:11px}
 }
+
+
+/* v54 — emphasize the two phrases that define the introduction. */
+.intro-accent{color:#b21f2d}
+.intro-underline{text-decoration-line:underline;text-decoration-thickness:.055em;text-underline-offset:.13em;text-decoration-color:currentColor}
