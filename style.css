@@ -333,3 +333,15 @@ summary>.disclosure-icon{justify-self:end;text-align:right}
 @media(max-width:640px){
   .before-after-wrap{margin-left:0}
 }
+
+/* v48 — lead with the portrait and keep the identity as one compact unit. */
+.intro-photo{margin-top:0}
+.intro-identity{margin-top:22px}
+.intro-side .intro-identity .person-name{margin:0}
+.intro-side .intro-identity .school-name{margin:6px 0 0;line-height:1.45}
+.intro-side .intro-focus{margin:30px 0 0}
+@media(max-width:640px){
+  .intro-identity{margin-top:13px}
+  .intro-side .intro-identity .school-name{margin-top:4px}
+  .intro-side .intro-focus{display:none}
+}
