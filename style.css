@@ -203,3 +203,17 @@ summary>.disclosure-icon{justify-self:end;text-align:right}
   .assumption{font-size:14px}
   .trace code,.trace span{font-size:13px}
 }
+
+/* v30 — keep the lead case distinct through color, not oversized type. */
+.featured-case .case-index{font-size:48px;line-height:1}
+.featured-case .case-index>span{margin-top:24px}
+.featured-case .case-heading h3{font-size:clamp(27px,3vw,42px);line-height:1.3;margin-bottom:25px;letter-spacing:-.05em}
+.featured-case .case-lead{font-size:19px;line-height:1.65}
+.featured-case .case-heading aside>strong{font-size:36px;line-height:1.15;margin:25px 0 15px}
+@media(max-width:640px){
+  .featured-case .case-index{font-size:32px}
+  .featured-case .case-index>span{margin-top:0}
+  .featured-case .case-heading h3{font-size:25px;line-height:1.35;margin-bottom:22px}
+  .featured-case .case-lead{font-size:15px}
+  .featured-case .case-heading aside>strong{font-size:26px;margin:18px 0 12px}
+}
