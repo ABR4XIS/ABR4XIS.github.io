@@ -275,3 +275,11 @@ summary>.disclosure-icon{justify-self:end;text-align:right}
 /* v39 — give each write-up row more breathing room. */
 .note{padding:24px 0}
 @media(max-width:640px){.note{padding:20px 0}}
+
+/* v40 — add breathing room around the FSOP code showcase. */
+.code-intro{margin-top:56px;gap:40px}
+.code-caption{margin-top:18px;margin-bottom:60px}
+@media(max-width:640px){
+  .code-intro{margin-top:38px;gap:24px}
+  .code-caption{margin-bottom:42px}
+}
