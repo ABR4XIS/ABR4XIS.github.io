@@ -393,3 +393,28 @@ summary>.disclosure-icon{justify-self:end;text-align:right}
 
 /* v57 — align the lead project number with the first title line. */
 @media(min-width:641px){.featured-case .case-index{margin-top:63px}}
+
+/* v58 — one three-step type scale: metadata, body, and display. */
+:root{--type-small:12px;--type-body:16px;--type-display:44px}
+body *{font-size:var(--type-body)!important}
+body :is(
+  .top,.top>span,.top>a:not(.name),
+  .intro-side .school-name,.intro-side .intro-focus,.intro-foot,.eyebrow,
+  .section-head>span,.tag,.project-result p,
+  .feature-kicker,.case-subtitle,.case-heading aside>span,.case-heading aside>p,
+  .case-meta,.case-preview,figcaption,.caption,.research-row>header>span,
+  .tool-record dt,.condition-note b,.code-caption,.route-comparison section>span,
+  .before-after section>span,.credential p,.credential-date,.credential h3 small,
+  pre,pre *,.call-path,.note>span:nth-child(2),
+  footer p,footer dl,.contact,.footer-bottom,
+  .writeup-head>p:last-child,.writeup-end
+){font-size:var(--type-small)!important}
+body :is(
+  .top .name,.intro-side .person-name,.intro h2,.section-head h1,
+  .project-label .number,.project-main h3,.project-result strong,
+  .case-index,.case-heading h3,.case-heading aside>strong,
+  .notes-intro h2,.writeup-head h1
+){font-size:var(--type-display)!important}
+@media(max-width:640px){
+  :root{--type-small:11px;--type-body:15px;--type-display:30px}
+}
