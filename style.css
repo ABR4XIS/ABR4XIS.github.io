@@ -320,3 +320,16 @@ summary>.disclosure-icon{justify-self:end;text-align:right}
 @media(min-width:1001px){
   .code-intro{grid-template-columns:minmax(0,5fr) minmax(0,7fr)}
 }
+
+/* v47 — use one shared horizontal cut for the FSOP and comparison panels. */
+@media(min-width:1001px){
+  .before-after-wrap{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:40px;margin-left:198px}
+  .before-after-wrap .before-after{grid-column:2;margin:0}
+}
+@media(min-width:641px) and (max-width:1000px){
+  .before-after-wrap{margin-left:148px}
+  .before-after-wrap .before-after{margin-left:0;margin-right:0}
+}
+@media(max-width:640px){
+  .before-after-wrap{margin-left:0}
+}
