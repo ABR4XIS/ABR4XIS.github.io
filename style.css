@@ -283,3 +283,14 @@ summary>.disclosure-icon{justify-self:end;text-align:right}
   .code-intro{margin-top:38px;gap:24px}
   .code-caption{margin-bottom:42px}
 }
+
+/* v41 — move the FSOP showcase onto the project body axis. */
+@media(min-width:1001px){
+  .code-intro,.code-caption{margin-left:198px}
+}
+@media(min-width:641px) and (max-width:1000px){
+  .code-intro,.code-caption{margin-left:148px}
+}
+@media(max-width:640px){
+  .code-intro,.code-caption{margin-left:0}
+}
