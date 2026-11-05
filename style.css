@@ -234,3 +234,12 @@ summary>.disclosure-icon{justify-self:end;text-align:right}
   .before-after{grid-template-columns:minmax(0,.82fr) 48px minmax(0,1.18fr);gap:18px}
   .before-after>span{justify-self:center}
 }
+
+/* v33 — move only the arrow; keep both text columns in their original positions. */
+@media(min-width:641px){
+  .before-after{position:relative;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:25px}
+  .before-after>span{position:absolute;left:42%;top:50%;transform:translate(-50%,-50%);margin:0}
+}
+@media(max-width:640px){
+  .before-after>span{position:static;transform:rotate(90deg);justify-self:start}
+}
