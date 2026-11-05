@@ -253,3 +253,7 @@ summary>.disclosure-icon{justify-self:end;text-align:right}
   .section-head h1{font-size:28px}
   .before-after section:last-of-type{padding-left:0}
 }
+
+/* v35 — soften the lead divider and remove the redundant result rule. */
+.featured-case{border-top-color:rgba(32,34,30,.22)}
+.featured-case .case-heading aside{border-top:0;padding-top:0}
