@@ -294,3 +294,7 @@ summary>.disclosure-icon{justify-self:end;text-align:right}
 @media(max-width:640px){
   .code-intro,.code-caption{margin-left:0}
 }
+
+/* v42 — separate the write-up list from the preceding project rule. */
+.writeups{padding-top:56px}
+@media(max-width:640px){.writeups{padding-top:38px}}
