@@ -260,3 +260,14 @@ summary>.disclosure-icon{justify-self:end;text-align:right}
 
 /* v37 — result-side headings use typography alone in every project. */
 .case-heading aside{border-top:0;padding-top:0}
+
+/* v38 — align the comparison panel with the metadata rule above it. */
+@media(min-width:1001px){
+  .before-after{margin-left:198px;margin-right:268px}
+}
+@media(min-width:641px) and (max-width:1000px){
+  .before-after{margin-left:148px;margin-right:198px}
+}
+@media(max-width:640px){
+  .before-after{margin-left:0;margin-right:0}
+}
