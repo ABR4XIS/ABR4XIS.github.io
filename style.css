@@ -257,3 +257,6 @@ summary>.disclosure-icon{justify-self:end;text-align:right}
 /* v35 — soften the lead divider and remove the redundant result rule. */
 .featured-case{border-top-color:rgba(32,34,30,.22)}
 .featured-case .case-heading aside{border-top:0;padding-top:0}
+
+/* v37 — result-side headings use typography alone in every project. */
+.case-heading aside{border-top:0;padding-top:0}
