@@ -422,3 +422,19 @@ body :is(
 @media(max-width:640px){
   :root{--type-small:11px;--type-body:15px;--type-display:30px}
 }
+
+/* Keep the outcome readable as whole words in the narrow results column. */
+body .featured-case .case-heading aside > strong {
+  font-size: clamp(46px, 4.4vw, 60px) !important;
+  line-height: 1.05;
+  word-break: keep-all;
+  text-wrap: balance;
+}
+@media (max-width: 640px) {
+  .featured-case .case-heading {grid-template-columns: minmax(0, 1fr);}
+  .featured-case .case-heading aside {max-width: none;}
+  body .featured-case .case-heading aside > strong {
+    font-size: clamp(34px, 9vw, 46px) !important;
+    margin: 8px 0;
+  }
+}
